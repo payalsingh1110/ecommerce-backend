@@ -48,36 +48,6 @@ public class AuthController {
 
     private final AuthService authService;
 
-//    @PostMapping("/authenticate")
-//    public void createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest,  HttpServletResponse response) throws IOException, JSONException {
-//
-//        try{
-//                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(),
-//                        authenticationRequest.getPassword()));
-//            }catch (BadCredentialsException e){
-//            log.error("Authentication Failure",e);
-//                throw new BadCredentialsException("Incorrect username or password.");
-//            }
-//            final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-//            Optional<User> optionalUser = userRepo.findFirstByEmail(userDetails.getUsername());
-//            final String jwt = jwtUtil.generateToken(userDetails.getUsername());
-//
-//            if(optionalUser.isPresent()){
-//                response.getWriter().write(new JSONObject()
-//                        .put("userId",  optionalUser.get().getId())
-//                        .put("role", optionalUser.get().getRole())
-//                        .toString()
-//                );
-//                // Allow frontend to read the 'Authorization' header from the response (important for JWT)
-//                response.addHeader("Access-Control-Expose-Headers","Authorization");
-//                // Allow these headers in incoming requests from frontend
-//                response.addHeader("Access-Control-Allow-Headers","Authorization, X-PINGOTHER,Origin,"
-//                        + "X-Requested-With, Content-Type, Accept, X-Custom-header");
-//
-//
-//                response.addHeader(HEADER_STRING, TOKEN_PREFIX +jwt);
-//            }
-//    }
 
     @PostMapping("/auth/authenticate")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) {
