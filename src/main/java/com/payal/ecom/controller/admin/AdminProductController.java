@@ -45,6 +45,8 @@ public class AdminProductController {
         List<ProductDto> productDtos= adminProductService.getAllProductsByName(name);
         return ResponseEntity.ok(productDtos);
     }
+
+
     @DeleteMapping("/product/{productId}")
    public ResponseEntity<Void> deleteProduct(@PathVariable Long productId){
         boolean deleted = adminProductService.deleteProduct(productId);
