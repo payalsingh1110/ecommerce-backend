@@ -5,6 +5,7 @@ import com.payal.ecom.dto.AddProductInCartDto;
 import com.payal.ecom.services.customer.cart.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,7 @@ public class CartController {
 
     private final CartService cartService;
 
+    @PreAuthorize("hasRole('CUSTOMER')")
     @PostMapping("/cart")
     public ResponseEntity<?> addProductToCart(@RequestBody AddProductInCartDto addProductInCartDto){
         return cartService.addProductToCart(addProductInCartDto);
