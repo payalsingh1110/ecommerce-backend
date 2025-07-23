@@ -34,7 +34,7 @@ public class CartServiceImpl implements CartService{
     private ProductRepository productRepository;
 
     public ResponseEntity<?> addProductToCart(AddProductInCartDto addProductInCartDto){
-        Order activeOrder = orderRepository.findByUserIdAndStatus(addProductInCartDto.getUserId(), OrderStatus.Pending);
+        Order activeOrder = orderRepository.findByUserIdAndOrderStatus(addProductInCartDto.getUserId(), OrderStatus.Pending);
         Optional<CartItem> optionalCartItem = cartItemsRepository.findByProductIdAndOrderIdAndUserId
                 (addProductInCartDto.getProductId(), activeOrder.getId(), addProductInCartDto.getUserId());
 
