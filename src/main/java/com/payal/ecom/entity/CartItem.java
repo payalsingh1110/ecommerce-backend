@@ -32,8 +32,8 @@ public class CartItem {
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
-    @JsonIgnore // Avoid circular issues in JSON (optional if needed)
+    @JoinColumn(name = "order_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Order order;
 
     public CartItemsDto getCartDto(){

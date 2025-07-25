@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 
 @Service
-public class CartServiceImpl implements CartService{
+public class CartServiceImpl implements CartService {
 
     @Autowired
     private OrderRepository orderRepository;
@@ -40,83 +40,75 @@ public class CartServiceImpl implements CartService{
     @Autowired
     private ProductRepository productRepository;
 
-                    //Fix: Handle null activeOrder
-    @Transactional  // to avoid session flush issues
+    @Transactional
     public ResponseEntity<?> addProductToCart(AddProductInCartDto addProductInCartDto) {
+        Long userId = addProductInCartDto.getUserId();
+        Long productId = addProductInCartDto.getProductId();
 
-        System.out.println("ram:");
-        Order activeOrder = orderRepository.findByUserIdAndOrderStatus(addProductInCartDto.getUserId(), OrderStatus.Pending);
-
-        //  If no active (pending) order, create a new one
+        // Find active (pending) order for this user
+        Order activeOrder = orderRepository.findByUserIdAndOrderStatus(userId, OrderStatus.Pending);
         if (activeOrder == null) {
-            Optional<User> optionalUser = userRepository.findById(addProductInCartDto.getUserId());
-
-            if (optionalUser.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-            }
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
 
             activeOrder = new Order();
-            activeOrder.setUser(optionalUser.get());
+            activeOrder.setUser(user);
             activeOrder.setOrderStatus(OrderStatus.Pending);
             activeOrder.setTotalAmount(0L);
             activeOrder.setAmount(0L);
-            activeOrder.setCartItems(new ArrayList<>());  // Initialize empty cart list
-            activeOrder = orderRepository.save(activeOrder);  // Save to generate ID
+            activeOrder.setCartItems(new ArrayList<>());
+            activeOrder = orderRepository.save(activeOrder);
         }
 
-        //  Check if product already exists in the cart
-        Optional<CartItem> optionalCartItem = cartItemsRepository.findByProductIdAndOrderIdAndUserId(
-                addProductInCartDto.getProductId(), activeOrder.getId(), addProductInCartDto.getUserId()
-        );
+        // Check if product is already in the cart
+        Optional<CartItem> optionalCartItem = cartItemsRepository.findByProductIdAndOrderIdAndUserId(productId, activeOrder.getId(), userId);
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
 
         if (optionalCartItem.isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Product already in cart");
+            // Increment quantity
+            CartItem existingCartItem = optionalCartItem.get();
+            existingCartItem.setQuantity(existingCartItem.getQuantity() + 1);
+            existingCartItem.setPrice(existingCartItem.getQuantity() * product.getPrice());
+            cartItemsRepository.save(existingCartItem);
+
+            // Update order total
+            activeOrder.setTotalAmount(activeOrder.getTotalAmount() + product.getPrice());
+            activeOrder.setAmount(activeOrder.getAmount() + product.getPrice());
+            orderRepository.save(activeOrder);
+
+            return ResponseEntity.ok(existingCartItem.getCartDto());
         }
 
-        Optional<Product> optionalProduct = productRepository.findById(addProductInCartDto.getProductId());
-        Optional<User> optionalUser = userRepository.findById(addProductInCartDto.getUserId());
+        // If not present, create new cart item
+        CartItem newCartItem = new CartItem();
+        newCartItem.setProduct(product);
+        newCartItem.setPrice(product.getPrice());
+        newCartItem.setQuantity(1L);
+        newCartItem.setUser(activeOrder.getUser());
+        newCartItem.setOrder(activeOrder);
 
-        if (optionalProduct.isPresent() && optionalUser.isPresent()) {
-            CartItem cart = new CartItem();
-            cart.setProduct(optionalProduct.get());
-            cart.setPrice(optionalProduct.get().getPrice());
-            cart.setQuantity(1L);
-            cart.setUser(optionalUser.get());
-            cart.setOrder(activeOrder);
+        cartItemsRepository.save(newCartItem);
 
-            CartItem updatedCart = cartItemsRepository.save(cart);
+        activeOrder.setTotalAmount(activeOrder.getTotalAmount() + product.getPrice());
+        activeOrder.setAmount(activeOrder.getAmount() + product.getPrice());
+        orderRepository.save(activeOrder);
 
-//            activeOrder.setTotalAmount(activeOrder.getTotalAmount() + cart.getPrice());
-//            activeOrder.setAmount(activeOrder.getAmount() + cart.getPrice());
-//            activeOrder.getCartItems().add(cart); // here you already saved the CartItem//
-//            orderRepository.save(activeOrder);  //again adding to Order's cart list and saving order is redundant..Because JPA will automatically manage the relation based on cart.setOrder(activeOrder).
-
-                    // Don’t double-link manually
-            activeOrder.setTotalAmount(activeOrder.getTotalAmount() + cart.getPrice());
-            activeOrder.setAmount(activeOrder.getAmount() + cart.getPrice());
-            orderRepository.save(activeOrder); // no need to manually update cartItems list again
-
-
-//            return ResponseEntity.status(HttpStatus.CREATED).body(cart);   Better Practice: Wrap CartItem return into DTO
-            CartItemsDto cartDto = cart.getCartDto();
-            return ResponseEntity.status(HttpStatus.CREATED).body(cartDto);
-
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User or Product not found");
-        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(newCartItem.getCartDto());
     }
-// return type OrderDto
-    public ResponseEntity<?> getCartByUserId(Long userId){
-        Order activeOrder = orderRepository.findByUserIdAndOrderStatus(userId,OrderStatus.Pending);
 
-                 // for handle nullpointerExpection
+    public ResponseEntity<?> getCartByUserId(Long userId) {
+        Order activeOrder = orderRepository.findByUserIdAndOrderStatus(userId, OrderStatus.Pending);
+
         if (activeOrder == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No active cart found for this user.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("No active cart found for this user.");
         }
 
-        List<CartItemsDto> cartItemsDtoList = activeOrder.getCartItems().stream().map(CartItem::getCartDto).collect(Collectors.toList());
-
-
+        List<CartItemsDto> cartItemsDtoList = activeOrder.getCartItems()
+                .stream()
+                .map(CartItem::getCartDto)
+                .collect(Collectors.toList());
 
         OrderDto orderDto = new OrderDto();
         orderDto.setAmount(activeOrder.getAmount());
@@ -129,3 +121,4 @@ public class CartServiceImpl implements CartService{
         return ResponseEntity.ok(orderDto);
     }
 }
+
