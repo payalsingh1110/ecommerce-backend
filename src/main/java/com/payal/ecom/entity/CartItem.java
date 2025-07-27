@@ -32,7 +32,7 @@ public class CartItem {
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", nullable = false)
+    @JoinColumn(name = "order_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Order order;
 
