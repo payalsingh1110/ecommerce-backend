@@ -31,7 +31,7 @@ public class CartController {
     @GetMapping("/cart/{userId}")
     public ResponseEntity<?> getCartByUserId(@PathVariable Long userId){
         log.info("User Id: {}",userId);
-        return cartService.getCartByUserId(userId); // No assignment to OrderDto
+        return cartService.getCartByUserId(userId);
     }
 
     @GetMapping("/coupon/{userId}/{code}")
@@ -43,5 +43,23 @@ public class CartController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
         }
     }
+
+    @PostMapping("/addition")
+    public ResponseEntity<OrderDto> increaseProductQuantity(@RequestBody AddProductInCartDto addProductInCartDto){
+        return ResponseEntity.status(HttpStatus.CREATED).body(cartService.increaseProductQuantity(addProductInCartDto));
+    }
+
+    @PostMapping("/deduction")
+    public ResponseEntity<OrderDto> decreaseProductQuantity(@RequestBody AddProductInCartDto addProductInCartDto){
+        return ResponseEntity.status(HttpStatus.CREATED).body(cartService.decreaseProductQuantity(addProductInCartDto));
+    }
+
+    @DeleteMapping("cart/remove")
+    public ResponseEntity<OrderDto> removeProductFromCart(@RequestBody AddProductInCartDto addProductInCartDto) {
+        return ResponseEntity.ok(cartService.removeProductFromCart(addProductInCartDto));
+    }
+
+
+
 
 }

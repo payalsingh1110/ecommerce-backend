@@ -11,4 +11,12 @@ public interface CartService {
     ResponseEntity<?> getCartByUserId(Long userId);
 
     OrderDto applyCoupon(Long userId, String code);
+
+    OrderDto increaseProductQuantity(AddProductInCartDto addProductInCartDto);
+
+    OrderDto decreaseProductQuantity(AddProductInCartDto addProductInCartDto);
+
+    OrderDto removeProductFromCart(AddProductInCartDto addProductInCartDto);
+
+
 }

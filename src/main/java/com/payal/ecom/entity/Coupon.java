@@ -21,6 +21,6 @@ public class Coupon {
 
     private Long discount;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+
     private Date expirationDate;
 }
