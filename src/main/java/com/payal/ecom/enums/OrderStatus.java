@@ -3,7 +3,7 @@ package com.payal.ecom.enums;
 public enum OrderStatus {
 
     Pending,
-    Places,
+    Placed,
     Shipped,
-    Deleviered
+    Delivered
 }

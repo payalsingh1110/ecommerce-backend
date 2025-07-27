@@ -1,5 +1,6 @@
 package com.payal.ecom.entity;
 
+import com.payal.ecom.dto.OrderDto;
 import com.payal.ecom.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -40,11 +41,34 @@ public class Order {
     @JoinColumn(name="user_id", referencedColumnName = "id")
     private User user;
 
+    @OneToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name="coupon_id", referencedColumnName = "id")
+    private Coupon coupon;
 
-    //Always match @OneToMany(mappedBy = "xyz") with @ManyToOne
-    // on the child entity pointing to the same field name (xyz)
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "order")
     private List<CartItem> cartItems;
+
+
+    public OrderDto getOrderDto(){
+        OrderDto orderDto = new OrderDto();
+
+        orderDto.setId(id);
+        orderDto.setOrderDescription(orderDescription);
+        orderDto.setAddress(address);
+        orderDto.setTrackingId(trackingId);
+        orderDto.setAmount(amount);
+        orderDto.setDate(date);
+        orderDto.setOrderStatus(orderStatus);
+        orderDto.setUserName(user.getName());
+        if(coupon != null ){
+            orderDto.setCouponName(coupon.getName());
+        }
+        return orderDto;
+    }
+
+
 
 
 }
