@@ -34,6 +34,7 @@ public class CartServiceImpl implements CartService {
     @Autowired
     private ProductRepository productRepository;
 
+
     @Autowired
     private CouponRepository couponRepository;
 
@@ -45,7 +46,8 @@ public class CartServiceImpl implements CartService {
         Long userId = addProductInCartDto.getUserId();
         Long productId = addProductInCartDto.getProductId();
 
-        // Find or create active order
+        // Find or create active order   
+
         Order activeOrder = orderRepository.findByUserIdAndOrderStatus(userId, OrderStatus.Pending);
         if (activeOrder == null) {
             User user = userRepository.findById(userId)
@@ -60,6 +62,7 @@ public class CartServiceImpl implements CartService {
             activeOrder = orderRepository.save(activeOrder);
         }
 
+
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
@@ -68,6 +71,7 @@ public class CartServiceImpl implements CartService {
                 .findByProductIdAndOrderIdAndUserId(productId, activeOrder.getId(), userId);
 
         if (optionalCartItem.isPresent()) {
+ 
             CartItem existingCartItem = optionalCartItem.get();
             existingCartItem.setQuantity(existingCartItem.getQuantity() + 1);
             existingCartItem.setPrice(existingCartItem.getQuantity() * product.getPrice());
@@ -216,8 +220,8 @@ public class CartServiceImpl implements CartService {
 
         return activeOrder.getOrderDto();
     }
-
-    /**
+  
+   /**
      * Recalculate order totals
      */
     private void recalculateOrderTotals(Order activeOrder) {
@@ -239,3 +243,4 @@ public class CartServiceImpl implements CartService {
         activeOrder.setAmount(total - discount);
     }
 }
+

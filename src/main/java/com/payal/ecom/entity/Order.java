@@ -5,6 +5,7 @@ import com.payal.ecom.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -47,8 +48,10 @@ public class Order {
 
 
 
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "order")
     private List<CartItem> cartItems;
+
 
 
     public OrderDto getOrderDto(){
