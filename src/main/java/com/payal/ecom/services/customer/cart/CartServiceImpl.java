@@ -3,6 +3,7 @@ package com.payal.ecom.services.customer.cart;
 import com.payal.ecom.dto.AddProductInCartDto;
 import com.payal.ecom.dto.CartItemsDto;
 import com.payal.ecom.dto.OrderDto;
+import com.payal.ecom.dto.PlaceOrderDto;
 import com.payal.ecom.entity.*;
 import com.payal.ecom.enums.OrderStatus;
 import com.payal.ecom.exceptions.ValidationException;
@@ -12,11 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -242,5 +241,50 @@ public class CartServiceImpl implements CartService {
         long discount = (activeOrder.getDiscount() != null) ? activeOrder.getDiscount() : 0;
         activeOrder.setAmount(total - discount);
     }
-}
+    /**
+     * Place Order
+     */
+    public OrderDto placeOrder(PlaceOrderDto placeOrderDto) {
+        Order activeOrder = orderRepository.findByUserIdAndOrderStatus(
+                placeOrderDto.getUserId(), OrderStatus.Pending);
 
+        // If there is no cart
+        if (activeOrder == null) {
+            throw new RuntimeException("No active cart found. Please add products before placing an order.");
+        }
+
+        Optional<User> optionalUser = userRepository.findById(placeOrderDto.getUserId());
+        if (optionalUser.isEmpty()) {
+            throw new RuntimeException("User not found");
+        }
+
+        // Placed Active order
+        activeOrder.setOrderDescription(placeOrderDto.getOrderDescription());
+        activeOrder.setAddress(placeOrderDto.getAddress());
+        activeOrder.setDate(new Date());
+        activeOrder.setOrderStatus(OrderStatus.Placed);
+        activeOrder.setTrackingId(UUID.randomUUID());
+        orderRepository.save(activeOrder);
+
+        //create New empty Pending order  so that user can  add product again
+        Order newOrder = new Order();
+        newOrder.setAmount(0L);
+        newOrder.setTotalAmount(0L);
+        newOrder.setDiscount(0L);
+        newOrder.setUser(optionalUser.get());
+        newOrder.setOrderStatus(OrderStatus.Pending);
+        orderRepository.save(newOrder);
+
+        return activeOrder.getOrderDto();
+    }
+
+    public List<OrderDto> getMyPlacedOrders(Long userId){
+
+       return orderRepository.findByUserIdAndOrderStatusIn(userId, List.of(OrderStatus.Placed,OrderStatus.Shipped,
+               OrderStatus.Delivered)).stream()
+               .map(Order::getOrderDto)
+               .collect(Collectors.toList());
+
+    }
+
+}
