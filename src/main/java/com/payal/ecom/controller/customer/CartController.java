@@ -3,6 +3,7 @@ package com.payal.ecom.controller.customer;
 
 import com.payal.ecom.dto.AddProductInCartDto;
 import com.payal.ecom.dto.OrderDto;
+import com.payal.ecom.dto.PlaceOrderDto;
 import com.payal.ecom.exceptions.ValidationException;
 import com.payal.ecom.services.customer.cart.CartService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/customer")
@@ -58,6 +61,18 @@ public class CartController {
     public ResponseEntity<OrderDto> removeProductFromCart(@RequestBody AddProductInCartDto addProductInCartDto) {
         return ResponseEntity.ok(cartService.removeProductFromCart(addProductInCartDto));
     }
+
+    @PostMapping("/placeOrder")
+    public ResponseEntity<OrderDto> placeOrder(@RequestBody PlaceOrderDto placeOrderDto ){
+        return ResponseEntity.status(HttpStatus.CREATED).body(cartService.placeOrder(placeOrderDto));
+    }
+
+    @GetMapping("/myOrders/{userId}")
+    public ResponseEntity<List<OrderDto>> getMyPlacedOrders(@PathVariable Long userId ){
+        return ResponseEntity.ok(cartService.getMyPlacedOrders(userId));
+    }
+
+
 
 
 
