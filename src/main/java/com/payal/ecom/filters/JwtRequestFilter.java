@@ -56,6 +56,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                                  token,
                                  Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role))
                          );
+
+
+
                  //  Set it in the security context — YOU MISSED THIS STEP
                  SecurityContextHolder.getContext().setAuthentication(authToken);
 
@@ -63,7 +66,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
          }
         //  Continue filter chain
          filterChain.doFilter(request, response);
-
     }
 
 }
