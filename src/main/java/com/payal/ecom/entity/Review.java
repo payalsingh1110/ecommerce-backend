@@ -1,6 +1,7 @@
 package com.payal.ecom.entity;
 
 
+import com.payal.ecom.dto.ReviewDto;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.OnDelete;
@@ -33,6 +34,20 @@ public class Review {
     @JoinColumn(name="product_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Product product;
+
+
+    public ReviewDto getDto(){
+        ReviewDto reviewDto = new ReviewDto();
+
+        reviewDto.setId(id);
+        reviewDto.setDescription(description);
+        reviewDto.setRating(rating);
+        reviewDto.setReturnedImg(img);
+        reviewDto.setProductId(product.getId());
+        reviewDto.setUsername(user.getName());
+
+        return reviewDto;
+    }
 
 
 
