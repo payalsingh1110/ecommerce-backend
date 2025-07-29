@@ -1,5 +1,6 @@
 package com.payal.ecom.controller.customer;
 
+import com.payal.ecom.dto.ProductDetailDto;
 import com.payal.ecom.dto.ProductDto;
 import com.payal.ecom.services.customer.CustomerProductService;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,13 @@ public class CustomerProductController {
 
         List<ProductDto> productDtos= customerProductService.getAllProductsByName(name);
         return ResponseEntity.ok(productDtos);
+    }
+
+    @GetMapping("/product/{productId}")
+    public ResponseEntity<ProductDetailDto> getProductDetailById(@PathVariable Long productId){
+        ProductDetailDto productDetailDto = customerProductService.getProductDetailById(productId);
+        if(productDetailDto == null) return  ResponseEntity.notFound().build();
+        return ResponseEntity.ok(productDetailDto);
     }
 
 }
