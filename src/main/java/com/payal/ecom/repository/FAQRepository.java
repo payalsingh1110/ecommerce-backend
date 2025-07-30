@@ -8,6 +8,5 @@ import java.util.List;
 
 @Repository
 public interface FAQRepository extends JpaRepository<FAQ, Long> {
-
-   List<FAQ> findAllByProductId(Long productId);
+  List<FAQ> findAllByProductId(Long productId);
 }
