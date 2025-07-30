@@ -23,10 +23,6 @@ public class WebSecurityConfiguration {
 
 
     private final JwtRequestFilter authFilter;
-//    public WebSecurityConfiguration(JwtRequestFilter authFilter) {
-//        this.authFilter = authFilter;
-//    }
-
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -34,9 +30,10 @@ public class WebSecurityConfiguration {
                 .csrf(csrf -> csrf.disable()) // updated
                 .authorizeHttpRequests(auth -> auth
                                 .requestMatchers("/auth/**").permitAll()
-                               .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                                .requestMatchers("/order/**").permitAll() //  ADD THIS LINE
+                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/api/customer/**").hasRole("CUSTOMER")
-                              .anyRequest().authenticated()
+                                .anyRequest().authenticated()
 
                         )
                 .sessionManagement(session -> session
