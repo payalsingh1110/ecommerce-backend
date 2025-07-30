@@ -1,6 +1,7 @@
 package com.payal.ecom.controller.admin;
 
 
+import com.payal.ecom.dto.AnalyticsResponse;
 import com.payal.ecom.dto.OrderDto;
 import com.payal.ecom.services.admin.adminOrder.AdminOrderService;
 import lombok.RequiredArgsConstructor;
@@ -33,4 +34,11 @@ public class AdminOrderController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(orderDto);
     }
+
+    @GetMapping("/order/analytics")
+    public ResponseEntity<AnalyticsResponse> getAnalytics(){
+        return ResponseEntity.ok(adminOrderService.calculateAnalytics());
+    }
+
+
 }
