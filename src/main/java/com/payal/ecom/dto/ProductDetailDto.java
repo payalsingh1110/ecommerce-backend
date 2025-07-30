@@ -14,3 +14,4 @@ public class ProductDetailDto {
 
     private List<FAQDto> faqDtoList;
 }
+
