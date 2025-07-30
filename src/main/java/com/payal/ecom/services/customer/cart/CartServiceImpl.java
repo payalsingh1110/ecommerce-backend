@@ -287,4 +287,28 @@ public class CartServiceImpl implements CartService {
 
     }
 
+    public OrderDto getOrderByTrackingId(String trackingId) {
+        UUID uuid;
+        try {
+            uuid = UUID.fromString(trackingId);
+        } catch (IllegalArgumentException ex) {
+            throw new RuntimeException("Invalid tracking ID format.");
+        }
+
+        Order order = orderRepository.findByTrackingId(uuid)
+                .orElseThrow(() -> new RuntimeException("Order not found with Tracking ID: " + trackingId));
+
+        OrderDto dto = order.getOrderDto();
+        dto.setCartItems(order.getCartItems()
+                .stream()
+                .map(CartItem::getCartDto)
+                .collect(Collectors.toList())
+        );
+
+        dto.setCouponName(order.getCoupon() != null ? order.getCoupon().getName() : null);
+
+        return dto;
+    }
+
+
 }

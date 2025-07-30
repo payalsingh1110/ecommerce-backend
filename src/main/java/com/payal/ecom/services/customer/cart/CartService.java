@@ -3,9 +3,11 @@ package com.payal.ecom.services.customer.cart;
 import com.payal.ecom.dto.AddProductInCartDto;
 import com.payal.ecom.dto.OrderDto;
 import com.payal.ecom.dto.PlaceOrderDto;
+import com.payal.ecom.entity.Order;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface CartService {
 
@@ -24,6 +26,9 @@ public interface CartService {
     OrderDto placeOrder(PlaceOrderDto placeOrderDto);
 
     List<OrderDto> getMyPlacedOrders(Long userId);
+
+    OrderDto getOrderByTrackingId(String trackingId);
+
 
 
 }
