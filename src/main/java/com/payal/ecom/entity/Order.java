@@ -36,7 +36,7 @@ public class Order {
 
     private Long discount;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = true)
     private UUID trackingId;
 
     @OneToOne(cascade = CascadeType.MERGE)
